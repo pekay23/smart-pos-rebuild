@@ -1,0 +1,15 @@
+# Optional local-only override for enabling operator OIDC in Compose.
+# Keep the OIDC private-key JSON outside the repository and provide its host path
+# through POS_OPERATOR_OIDC_KEY_FILE in the untracked root .env file.
+services:
+  operator-api:
+    environment:
+      POS_OPERATOR_OIDC_ISSUER: ${POS_OPERATOR_OIDC_ISSUER:?Set an operator-only OIDC issuer}
+      POS_OPERATOR_OIDC_INTROSPECTION_URL: ${POS_OPERATOR_OIDC_INTROSPECTION_URL:?Set the operator introspection endpoint}
+      POS_OPERATOR_OIDC_API_AUDIENCE: ${POS_OPERATOR_OIDC_API_AUDIENCE:?Set an audience distinct from the tenant API}
+      POS_OPERATOR_OIDC_ALLOWED_CLIENT_IDS: ${POS_OPERATOR_OIDC_ALLOWED_CLIENT_IDS:?Set operator-only browser client IDs}
+      POS_OPERATOR_OIDC_KEY_FILE: /run/secrets/operator-oidc-key.json
+      POS_OPERATOR_FORBIDDEN_AUDIENCES: ${POS_API_OIDC_API_AUDIENCE:?Set the tenant API audience}
+      POS_OPERATOR_FORBIDDEN_CLIENT_IDS: ${POS_API_OIDC_ALLOWED_CLIENT_IDS:?Set tenant browser client IDs}
+    volumes:
+      - ${POS_OPERATOR_OIDC_KEY_FILE:?Set the host path to the operator OIDC key file}:/run/secrets/operator-oidc-key.json:ro

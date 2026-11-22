@@ -1,0 +1,382 @@
+.register-availability .transfer-availability-row {
+  grid-template-columns: minmax(0, 1fr) minmax(116px, auto) minmax(116px, auto);
+}
+
+.station-branch-metrics {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.station-branch-metrics > strong {
+  color: #435448;
+  font-size: 10px;
+}
+
+.station-branch-metrics > small {
+  color: #7b867e;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.availability-pickup-trigger {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 0;
+  border-top: 1px solid #e8e9e1;
+}
+
+.pickup-reservation-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dce5d8;
+  border-radius: 7px;
+  background: #f7faf4;
+}
+
+.pickup-reservation-heading {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+}
+
+.pickup-reservation-heading > strong {
+  color: #344b38;
+  font-size: 11px;
+}
+
+.pickup-reservation-heading > span,
+.pickup-reservation-actions > span {
+  color: #718075;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.pickup-reservation-form > label:not(.pickup-consent) {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  color: #5d6b60;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.pickup-reservation-form input:not([type='checkbox']) {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid #d2ddd0;
+  border-radius: 5px;
+  background: #fff;
+  color: #26342a;
+  font: inherit;
+  font-size: 11px;
+}
+
+.pickup-reservation-form input:focus-visible {
+  outline: 2px solid #47724b;
+  outline-offset: 1px;
+}
+
+.pickup-consent {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #4c5f50;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.pickup-consent input {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin: 0;
+  accent-color: #47724b;
+}
+
+.pickup-reservation-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e8dc;
+}
+
+.pickup-reservation-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .register-availability .transfer-availability-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .station-branch-metrics {
+    justify-items: end;
+  }
+
+  .station-branch-metrics:last-of-type {
+    grid-column: 1 / -1;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .pickup-reservation-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pickup-queue {
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid #dfe4da;
+  border-radius: 10px;
+  background: #fffefa;
+  color: var(--ink);
+  box-shadow: 0 5px 16px #293c2910;
+}
+
+.pickup-queue-header,
+.pickup-queue-title,
+.pickup-queue-summary,
+.pickup-queue-summary > span {
+  display: flex;
+  align-items: center;
+}
+
+.pickup-queue-header {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pickup-queue-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.pickup-queue-title {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pickup-queue-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 8px;
+  background: #edf3e9;
+  color: #4d704f;
+}
+
+.pickup-queue-title .eyebrow,
+.pickup-queue-title h2,
+.pickup-queue-title p:last-child {
+  margin: 0;
+}
+
+.pickup-queue-title h2 {
+  margin-top: 3px;
+  font-size: 16px;
+}
+
+.pickup-queue-title p:last-child {
+  margin-top: 4px;
+  color: #78837a;
+  font-size: 10px;
+}
+
+.pickup-queue-summary {
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 9px 0;
+  border-top: 1px solid #eceee8;
+  border-bottom: 1px solid #eceee8;
+  color: #6e7a70;
+  font-size: 9px;
+}
+
+.pickup-queue-summary > span {
+  gap: 6px;
+}
+
+.pickup-queue-state,
+.pickup-queue-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 74px;
+  color: #758078;
+  font-size: 11px;
+}
+
+.pickup-queue-error {
+  flex-wrap: wrap;
+  color: #934c3b;
+}
+
+.pickup-reservation-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pickup-reservation-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e2e7df;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.pickup-reservation-card-header,
+.pickup-reservation-card-header > div,
+.pickup-reservation-items li,
+.pickup-reservation-items li > span,
+.pickup-reservation-expiry {
+  display: flex;
+}
+
+.pickup-reservation-card-header {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pickup-reservation-card-header > div,
+.pickup-reservation-items li > span {
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pickup-reservation-card-header strong,
+.pickup-reservation-customer strong {
+  color: #35483a;
+  font-size: 11px;
+}
+
+.pickup-reservation-card-header small,
+.pickup-reservation-items small {
+  color: #818a82;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.pickup-status {
+  flex: none;
+  padding: 4px 7px;
+  border-radius: 99px;
+  background: #eef2ec;
+  color: #536858;
+  font-size: 9px;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.pickup-status-held { background: #fff1d7; color: #865d16; }
+.pickup-status-ready { background: #e6f2e5; color: #3d6d43; }
+.pickup-status-cancelled,
+.pickup-status-expired { background: #f1f0ec; color: #777c76; }
+
+.pickup-reservation-customer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  margin-top: 11px;
+}
+
+.pickup-reservation-customer a {
+  color: #47724b;
+  font-size: 10px;
+  text-decoration: none;
+}
+
+.pickup-reservation-customer a:hover { text-decoration: underline; }
+
+.pickup-reservation-items {
+  display: grid;
+  gap: 0;
+  margin: 9px 0 0;
+  padding: 0;
+  border-top: 1px solid #edf0ea;
+  list-style: none;
+}
+
+.pickup-reservation-items li {
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #edf0ea;
+  color: #59675d;
+  font-size: 10px;
+}
+
+.pickup-reservation-items li > strong {
+  flex: none;
+  color: #394b3d;
+  font-size: 10px;
+}
+
+.pickup-reservation-expiry {
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  color: #6d7a70;
+  font-size: 9px;
+}
+
+.pickup-queue-disclosure {
+  margin: 12px 0 0;
+  color: #818a82;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.pickup-queue-dialog {
+  width: min(920px, calc(100vw - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 0;
+  border: 1px solid #d8dfd5;
+  border-radius: 12px;
+  background: #fffefa;
+  color: var(--ink);
+  box-shadow: 0 20px 70px #17251d40;
+}
+
+.pickup-queue-dialog::backdrop { background: #18231bcc; }
+.pickup-queue-dialog .pickup-queue { margin: 0; border: 0; box-shadow: none; }
+
+@media (max-width: 700px) {
+  .pickup-queue { padding: 13px; }
+  .pickup-queue-header { align-items: flex-start; }
+  .pickup-queue-header-actions > .button { flex: none; }
+  .pickup-queue-summary { align-items: flex-start; flex-direction: column; }
+  .pickup-reservation-list { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,0 +1,37 @@
+# Credit-sale design judgment
+
+## Recommendation
+
+Use **domain-service.md** as the base. Keep `sales::commit` as the sole owner of the sale transaction and give the receivables boundary one operation that issues an invoice from the persisted, authorized sale. The database capability must expose only the selected customer's aggregate and the new invoice summary, while ordinary runtime queries retain branch-scoped invoice visibility. Implement and test the proposed role, policies and function before treating those privacy claims as established.
+
+Graft the nested `onAccount` request object, explicit expected-errors mapping, detailed rollback cases and replay-before-current-customer-validation requirement from **inline-atomic.md**. Adopt the domain candidate's separate credit-position preview, source-sale-derived invoice fields, debt-aware merge restriction, shared-ticket replay handling and restricted-role tests. Keep all customer-facing credit checkout gated until collections, correction handling, receipts and the accounting/reporting paths are complete.
+
+Reject the inline candidate's expanded runtime invoice SELECT policy. A transaction-local customer setting limits *which* rows it can expose but still allows the runtime role to query cross-branch invoice rows for that customer. Returning only an aggregate in one Rust caller does not enforce the requested database privilege boundary. Reject a second transaction or an approval token: neither preserves one atomic checkout under concurrency.
+
+## Scores
+
+Scores are 1–5, where 5 means the design satisfies the criterion with clear enforcement and verification. These assess the written candidates, not working code.
+
+| Criterion | Inline atomic | Domain service |
+| --- | --- | --- |
+| Atomic transaction and retries | **4** — keeps sale, invoice, stock, proof, journal and ticket in one transaction; handles replay before current terms and active-customer checks. | **4** — retains the same transaction and adds a scoped shared-ticket invoice replay path. The exact execution identity of deferred guards and replay visibility still need tests. |
+| Exposure locking | **3** — a shared advisory lock works only if every terms, issue, collection, correction, archive and merge path follows the same key and order. The candidate does not enforce that contract at the database boundary. | **4** — customer and term row locks provide a concrete serialization point shared with actual row updates. Its policies, privileges, transaction isolation behavior and lock ordering still need proof. |
+| Forced-RLS privacy and least privilege | **1** — broadens the runtime role's cross-branch invoice row visibility for a selected customer, contrary to the rubric. Caller convention cannot turn row access into aggregate-only access. | **4** — a dedicated non-login, non-bypass owner can expose a bounded capability without granting cross-branch invoice SELECT or term UPDATE to runtime. This depends on carefully scoped RLS policies, function ownership, grants and validated context. |
+| Ledger and correction invariants | **4** — records real tenders plus AR, blocks unsupported refunds, specifies balance checks and rollback. | **4** — adds source-derived snapshots, debt-aware merges and replay visibility. Neither candidate fully specifies the existing accounting coverage/report changes required for credit sales. |
+| Maintainable interface and depth | **3** — a prepare operation returns a mutable approval snapshot while invoice issuance remains in the already large checkout function; callers must preserve sequencing and lock lifetime. | **4** — one issue operation owns the credit decision and invoice creation within the supplied transaction. Its Rust wrapper must add typed error/domain adaptation and must not become a pass-through layer with duplicated policy. |
+
+## Red-flag review
+
+- **Inline:** the proposed prepare-then-insert contract leaks the same customer, currency, terms snapshot and ordering rules into checkout and invoice code. It is a temporal split and risks an approval being reused or not followed by insertion. The selected-customer SQL context also leaks a privacy decision into every caller allowed to query invoices.
+- **Domain service:** the one-operation boundary hides material policy, so it is not inherently shallow. However, a Rust function that only forwards a SQL function's arguments and errors would be a pass-through; keep it only if it owns typed errors, bounded results and the domain contract. Avoid splitting validation and issuance across two independently callable methods or duplicating the exposure formula between the preview and issue functions.
+- **Both:** the proposed lock sequences are sketches, not proven current order. Existing checkout acquires inventory locks before pricing and sale insertion (`apps/api/src/sales.rs` around lines 1930–2020). Enumerate existing station, ticket, inventory, customer, term and drawer locks and enforce one compatible order across sale, term updates, merge, correction and collection paths. Test conflicting cross-branch operations and deadlock/serialization retries.
+
+## Required implementation checks
+
+1. The helper role must be `NOLOGIN`, `NOBYPASSRLS`, not granted to runtime, and possess only required column permissions and role-specific policies. Revoke `PUBLIC` function execution, pin `search_path`, qualify objects, authorize the actual source sale and active station context, and verify function ownership under the real deployment migration/provisioning sequence. The existing transaction-local identity settings are supplied by the trusted API; this function alone does not authenticate a compromised database login.
+2. `FOR UPDATE` needs an appropriate UPDATE privilege and RLS policy for the dedicated owner. Test the lock rather than assuming the grant is sufficient. Verify RLS visibility through joins and for deferred 0067 triggers at commit under the caller's context. Direct restricted-role SQL must deny raw cross-branch invoice listing, fabricated invoice insertion, terms changes and calls against another cashier's sale.
+3. A source customer's open debt must remain visible to credit checks after any merge or archive. Until debt-aware consolidation exists, block relevant merges under locks shared with issuance and collections. Explicitly reject unsupported credit-sale refund/void and customer reassignment rather than allowing a cash payout or relying on a generic deferred-constraint error.
+4. Update hosted accounting coverage: its current query marks no tenders as `sale_tenders_missing` and a tender sum below the total as `sale_tenders_do_not_reconcile` (`apps/api/src/sales.rs:498`). Reconcile tenders plus on-account balance and verify invoice and AR journal consistency. Update account `1100` classification, receipt disclosure and sales/report display; the current payment-method list is empty for a full-credit sale.
+5. Prove exact same-station and completed shared-ticket retries after terms changes, customer archive and across cashiers; changed payloads conflict. Test full and mixed credit, real cash drawer movements, aggregate isolation by tenant/customer/currency, concurrent limit use and terms changes, and rollback on journal/audit/deferred-check failure. Future collections and adjustments must reuse the exposure calculation and serialization point before release.
+
+No product source or tests were changed as part of this judgment.

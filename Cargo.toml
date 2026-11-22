@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/pos-core",
+    "apps/api",
+  "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+edition = "2021"
+license = "AGPL-3.0-or-later"
+
+# Keep line tables for useful Rust backtraces while avoiding full variable/type
+# debug metadata in the large API test binary and local desktop builds.
+[profile.dev]
+debug = 1
+
+[profile.test]
+debug = 1

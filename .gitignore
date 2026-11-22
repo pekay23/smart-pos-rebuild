@@ -1,0 +1,110 @@
+# Local environment and secrets. Keep example/template files trackable.
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.template
+!.env.*.template
+**/.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.key.json
+credentials*.json
+service-account*.json
+# ZITADEL / OIDC private-key JSON files must never be committed.
+*zitadel*key*.json
+
+# JavaScript dependencies and generated frontend output.
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.vite/
+**/coverage/
+**/playwright-report/
+**/test-results/
+**/.turbo/
+**/.cache/
+
+# Rust build output and local CodeGraph index.
+**/target/
+.codegraph/
+graphify-out/
+
+# Local toolchain and verification build cache kept beside planning notes.
+/.planning/toolchain/
+/.planning/target-verify-drawer-history/
+/.planning/local-build-count.json
+
+# CMake and native build output generated in this repository.
+**/build/
+**/build-*/
+**/build_*/
+**/cmake-build-*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/compile_commands.json
+**/Testing/
+**/target-*/
+
+# Visual Studio and MSVC intermediate output.
+**/.vs/
+**/x64/
+**/Win32/
+**/ipch/
+*.obj
+*.pdb
+*.ilk
+*.pch
+*.idb
+*.tlog/
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+*.lib
+
+# Other common generated build directories.
+**/out/
+
+# Local databases, journals, backups and transient files.
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite3-wal
+*.sqlite-shm
+*.sqlite3-shm
+*.sqlite-journal
+*.sqlite3-journal
+*.db
+*.db3
+*.db-wal
+*.db-shm
+*.db3-wal
+*.db3-shm
+*.db-journal
+*.bak
+*.backup
+*.tmp
+*.temp
+
+# Logs and operating-system/editor state.
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo

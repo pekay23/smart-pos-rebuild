@@ -1,0 +1,47 @@
+.tenant-staff-panel {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border, #dce3e8);
+  border-radius: 1rem;
+  background: var(--surface, #fff);
+}
+
+.tenant-staff-panel > .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tenant-staff-panel .section-heading h2 { margin: 0.1rem 0; }
+.tenant-staff-panel .section-heading p:last-child { margin: 0; color: var(--muted, #667085); }
+
+.hosted-staff-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hosted-staff-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--border, #e4e7ec);
+  border-radius: 0.8rem;
+  background: var(--surface-subtle, #fafbfc);
+}
+
+.hosted-staff-copy { display: grid; min-width: 0; gap: 0.25rem; }
+.hosted-staff-copy strong { overflow-wrap: anywhere; }
+.hosted-staff-copy small, .tenant-staff-note { color: var(--muted, #667085); }
+.tenant-staff-note { margin: 1rem 0 0; font-size: 0.85rem; }
+
+@media (max-width: 640px) {
+  .tenant-staff-panel { padding: 1rem; }
+  .tenant-staff-panel > .section-heading { align-items: flex-start; }
+}

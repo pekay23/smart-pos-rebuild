@@ -1,0 +1,8 @@
+FROM rust:1.88-bookworm
+
+WORKDIR /workspace
+COPY . .
+RUN cargo build --locked --package pos-api
+
+EXPOSE 8787
+CMD ["cargo", "run", "--locked", "--package", "pos-api"]

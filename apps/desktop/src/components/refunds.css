@@ -1,0 +1,50 @@
+.sale-detail-modal {
+  width: min(650px, 100%);
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+}
+
+.sale-detail-total,
+.sale-refund-history > div,
+.sale-detail-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sale-detail-total {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border: 1px solid #e9ece4;
+  border-radius: 9px;
+  background: #fafbf8;
+  color: #7b857c;
+  font-size: 11px;
+}
+
+.sale-detail-total strong { color: #34483a; font-size: 15px; }
+.sale-detail-lines { display: grid; max-height: 245px; overflow-y: auto; border-top: 1px solid #edeee8; }
+.sale-detail-line { padding: 10px 2px; border-bottom: 1px solid #edeee8; }
+.sale-detail-line > div { display: grid; gap: 4px; min-width: 0; }
+.sale-detail-line strong { color: #39463c; font-size: 11px; }
+.sale-detail-line small { color: #879087; font-size: 9px; }
+.sale-detail-line label { display: flex; align-items: center; gap: 7px; color: #7b857c; font-size: 9px; }
+.sale-detail-line input { width: 64px; min-height: 32px; padding: 5px; border: 1px solid #e4e7df; border-radius: 7px; color: #34483a; text-align: center; }
+.sale-refund-history { display: grid; gap: 8px; margin: 14px 0; }
+.sale-refund-history h3 { margin: 0; color: #506253; font-size: 11px; }
+.sale-refund-history > div { padding: 8px 10px; border-radius: 7px; background: #f7f8f4; color: #7b857c; font-size: 9px; }
+.sale-refund-history strong { color: #465b4a; }
+.refund-form { display: grid; gap: 11px; margin-top: 15px; padding-top: 14px; border-top: 1px solid #edeee8; }
+.refund-form .field-label { margin: 0; }
+.refund-kind-toggle { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #627065; font-size: 10px; }
+.refund-kind-toggle label { display: flex; align-items: center; gap: 7px; }
+.refund-kind-toggle input { accent-color: #527b59; }
+.refund-kind-toggle strong { color: #334939; }
+.refund-success { display: flex; gap: 8px; align-items: center; margin-top: 12px; padding: 10px; border: 1px solid #dcebdd; border-radius: 8px; background: #f1f8f1; color: #466e4b; font-size: 10px; }
+
+@media (max-width: 560px) {
+  .sale-detail-modal { padding: 23px 18px; }
+  .sale-detail-lines { max-height: 30dvh; }
+  .refund-kind-toggle { align-items: flex-start; flex-direction: column; }
+}

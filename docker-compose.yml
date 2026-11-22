@@ -1,0 +1,172 @@
+name: advanced-pos-local
+
+services:
+  postgres:
+    image: postgres:16.6-bookworm
+    environment:
+      POSTGRES_DB: advanced_pos
+      POSTGRES_USER: pos_migrator
+      POSTGRES_PASSWORD: ${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}
+      POS_API_DEV_RUNTIME_PASSWORD: ${POS_API_DEV_RUNTIME_PASSWORD:-local-runtime-only}
+      POS_API_DEV_OPERATOR_PASSWORD: ${POS_API_DEV_OPERATOR_PASSWORD:-local-operator-only}
+      POS_API_DEV_OPERATOR_PROVISIONER_PASSWORD: ${POS_API_DEV_OPERATOR_PROVISIONER_PASSWORD:-local-operator-provisioner-only}
+      POS_API_DEV_EXPIRY_RUNNER_PASSWORD: ${POS_API_DEV_EXPIRY_RUNNER_PASSWORD:-local-expiry-runner-only}
+      POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD: ${POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD:-local-attendance-runner-only}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - pos_api_postgres:/var/lib/postgresql/data
+      - ./apps/api/docker/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos_migrator -d advanced_pos"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    command: ["cargo", "run", "--locked", "--package", "pos-api", "--", "migrate"]
+    environment:
+      POS_API_MIGRATION_DATABASE_URL: postgres://pos_migrator:${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}@postgres:5432/advanced_pos
+    depends_on:
+      provision-operator-role:
+        condition: service_completed_successfully
+      provision-pickup-expiry-roles:
+        condition: service_completed_successfully
+
+  provision-operator-role:
+    image: postgres:16.6-bookworm
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["psql --set=ON_ERROR_STOP=1 --set=operator_password=\"$${POS_API_DEV_OPERATOR_PASSWORD}\" --set=provisioner_password=\"$${POS_API_DEV_OPERATOR_PROVISIONER_PASSWORD}\" --file=/docker/provision-operator-role.sql"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: advanced_pos
+      PGUSER: pos_migrator
+      PGPASSWORD: ${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}
+      POS_API_DEV_OPERATOR_PASSWORD: ${POS_API_DEV_OPERATOR_PASSWORD:-local-operator-only}
+      POS_API_DEV_OPERATOR_PROVISIONER_PASSWORD: ${POS_API_DEV_OPERATOR_PROVISIONER_PASSWORD:-local-operator-provisioner-only}
+    volumes:
+      - ./apps/api/docker/provision-operator-role.sql:/docker/provision-operator-role.sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  provision-pickup-expiry-roles:
+    image: postgres:16.6-bookworm
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["psql --set=ON_ERROR_STOP=1 --set=runner_password=\"$${POS_API_DEV_EXPIRY_RUNNER_PASSWORD}\" --file=/docker/provision-pickup-expiry-roles.sql"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: advanced_pos
+      PGUSER: pos_migrator
+      PGPASSWORD: ${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}
+      POS_API_DEV_EXPIRY_RUNNER_PASSWORD: ${POS_API_DEV_EXPIRY_RUNNER_PASSWORD:-local-expiry-runner-only}
+    volumes:
+      - ./apps/api/docker/provision-pickup-expiry-roles.sql:/docker/provision-pickup-expiry-roles.sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  provision-runtime:
+    image: postgres:16.6-bookworm
+    entrypoint: ["/bin/sh", "/docker/grant-runtime.sh"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: advanced_pos
+      PGUSER: pos_migrator
+      PGPASSWORD: ${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}
+    volumes:
+      - ./apps/api/docker/grant-runtime.sh:/docker/grant-runtime.sh:ro
+      - ./apps/api/docker/grant-runtime.sql:/docker/grant-runtime.sql:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  provision-attendance-roles:
+    image: postgres:16.6-bookworm
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["psql --set=ON_ERROR_STOP=1 --set=runner_password=\"$${POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD}\" --file=/docker/provision-attendance-roles.sql"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: advanced_pos
+      PGUSER: pos_migrator
+      PGPASSWORD: ${POS_API_DEV_MIGRATION_PASSWORD:-local-migrator-only}
+      POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD: ${POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD:-local-attendance-runner-only}
+    volumes:
+      - ./apps/api/docker/provision-attendance-roles.sql:/docker/provision-attendance-roles.sql:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  attendance-expiry-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    command: ["cargo", "run", "--locked", "--package", "pos-api", "--", "attendance-expiry-worker"]
+    environment:
+      POS_API_ATTENDANCE_DATABASE_URL: postgres://pos_attendance_runner:${POS_API_DEV_ATTENDANCE_RUNNER_PASSWORD:-local-attendance-runner-only}@postgres:5432/advanced_pos?sslmode=disable
+    depends_on:
+      provision-attendance-roles:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    environment:
+      POS_API_BIND: 0.0.0.0:8787
+      POS_API_ALLOWED_ORIGINS: http://localhost:5173
+      POS_API_DATABASE_URL: postgres://pos_api_runtime:${POS_API_DEV_RUNTIME_PASSWORD:-local-runtime-only}@postgres:5432/advanced_pos?sslmode=disable
+      POS_API_ALLOW_INSECURE_DOCKER_DATABASE: "true"
+    ports:
+      - "127.0.0.1:8787:8787"
+    depends_on:
+      provision-runtime:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  operator-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    command: ["cargo", "run", "--locked", "--package", "pos-api", "--bin", "operator-api"]
+    environment:
+      POS_OPERATOR_BIND: 0.0.0.0:8788
+      POS_OPERATOR_ALLOWED_ORIGINS: http://localhost:5174,http://127.0.0.1:5174
+      POS_OPERATOR_DATABASE_URL: postgres://pos_operator_runtime:${POS_API_DEV_OPERATOR_PASSWORD:-local-operator-only}@postgres:5432/advanced_pos?sslmode=disable
+      POS_OPERATOR_ALLOW_INSECURE_DOCKER_DATABASE: "true"
+      POS_OPERATOR_FORBIDDEN_AUDIENCES: ${POS_OPERATOR_FORBIDDEN_AUDIENCES:-}
+      POS_OPERATOR_FORBIDDEN_CLIENT_IDS: ${POS_OPERATOR_FORBIDDEN_CLIENT_IDS:-}
+    ports:
+      - "127.0.0.1:8788:8788"
+    depends_on:
+      provision-runtime:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  pickup-expiry-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    command: ["cargo", "run", "--locked", "--package", "pos-api", "--", "pickup-expiry-worker"]
+    environment:
+      POS_API_EXPIRY_DATABASE_URL: postgres://pos_api_expiry_runner:${POS_API_DEV_EXPIRY_RUNNER_PASSWORD:-local-expiry-runner-only}@postgres:5432/advanced_pos?sslmode=disable
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  pos_api_postgres:

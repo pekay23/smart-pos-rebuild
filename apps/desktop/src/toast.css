@@ -1,0 +1,10 @@
+.toast-stack { position: fixed; z-index: 200; inset: auto 20px 20px auto; display: grid; gap: 8px; width: min(390px, calc(100vw - 32px)); pointer-events: none; }
+.app-toast { display: grid; grid-template-columns: 20px 1fr 28px; align-items: center; gap: 10px; padding: 12px 13px; border: 1px solid #dce8dc; border-radius: 10px; background: #fffefa; color: #36503d; box-shadow: 0 10px 30px #2032261c; font-size: 12px; line-height: 1.45; animation: toast-enter 160ms ease-out; pointer-events: auto; }
+.app-toast > svg { color: #4c8b5d; }
+.app-toast.toast-error { border-color: #f0d7cf; color: #873e30; }
+.app-toast.toast-error > svg { color: #b74c39; }
+.app-toast.toast-info > svg { color: #5c7898; }
+.app-toast button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #879188; cursor: pointer; }
+.app-toast button:hover { background: #f1f2ed; }
+@keyframes toast-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 520px) { .toast-stack { inset: auto 12px 12px; width: auto; } }
